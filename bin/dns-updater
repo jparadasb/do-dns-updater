@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-
 if [ "$1" == "--debug" ]; then
+  echo "debug mode true"
   DEBUG=true
 fi
 
 function logger () {
-  if [ "$DEBUG" = true ]; then
-    echo "$(date -u): $1"
+  if [ "$DEBUG" = true ] || [ "$2" == "--force" ]; then
+    echo "$1"
   fi
 }
 
@@ -14,29 +14,36 @@ function getAttribute () {
   echo $1 | jq -r $2
 } 
 
-TEMP_FILE=/tmp/current-ip
-NEW_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+function updateDNS () {
+  local TEMP_FILE=/tmp/current-ip
+  local NEW_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
 
-# logger "External ip $NEW_IP"
+  # logger "External ip $NEW_IP"
 
-if test -f "$TEMP_FILE"; then
-  CURRENT_IP=$(<"$TEMP_FILE")
-fi
-
-logger "New_IP: $NEW_IP, Stored_IP: $CURRENT_IP"
-
-if [ "$CURRENT_IP" != "$NEW_IP" ]; then
-  echo "$NEW_IP" > $TEMP_FILE
-  RESPONSE=$(curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $DO_API_KEY" -d "{\"data\": \"$NEW_IP\" }" "https://api.digitalocean.com/v2/domains/$DOMAIN/records/$DOMAIN_ID" 2>/dev/null )
-  logger "$RESPONSE"
-  RESPONSE_RECORD_ID=$(getAttribute $RESPONSE '.id')
-  if [ "$RESPONSE_RECORD_ID" == "not_found" ]; then
-    logger $(getAttribute $RESPONSE '.message')
-  else
-    logger "IP address updated successfully"
-    logger "RecordID: $(getAttribute $RESPONSE '.domain_record.id') IP: $(getAttribute $RESPONSE '.domain_record.data')"
+  if test -f "$TEMP_FILE"; then
+    local CURRENT_IP=$(<"$TEMP_FILE")
   fi
-else
-  logger "IP address is updated $CURRENT_IP"
-fi
 
+  logger "New_IP: $NEW_IP, Stored_IP: $CURRENT_IP"
+
+  if [ "$CURRENT_IP" != "$NEW_IP" ]; then
+    echo "$NEW_IP" > $TEMP_FILE
+    local RESPONSE=$(curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $DO_API_KEY" -d "{\"data\": \"$NEW_IP\" }" "https://api.digitalocean.com/v2/domains/$DOMAIN/records/$DOMAIN_ID" 2>/dev/null )
+    logger "$RESPONSE"
+    local RESPONSE_RECORD_ID=$(getAttribute $RESPONSE '.id')
+    if [ "$RESPONSE_RECORD_ID" == "not_found" ]; then
+      logger $(getAttribute $RESPONSE '.message')
+    else
+      logger "IP address updated successfully to $NEW_IP" "--force"
+      logger "RecordID: $(getAttribute $RESPONSE '.domain_record.id') IP: $(getAttribute $RESPONSE '.domain_record.data')"
+    fi
+  else
+    logger "IP address is updated $CURRENT_IP"
+  fi
+}
+
+while :
+do
+  updateDNS
+  sleep 1
+done
