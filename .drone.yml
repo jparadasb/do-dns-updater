@@ -22,3 +22,6 @@ steps:
       tags:
         - latest
         - build-${DRONE_BUILD_NUMBER}
+      when:
+        ref:
+          - refs/tags/v*
