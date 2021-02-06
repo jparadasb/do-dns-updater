@@ -1,18 +1,26 @@
-pipeline:
-  publish-private:
+kind: pipeline
+type: docker
+name: default
+steps:
+  - name: publish-private
     image: plugins/docker
-    repo: registry.paradas.co/do-dns-updater
-    registry: registry.paradas.co
-    secrets: [ docker_username, docker_password ]
-    tags:
-      - latest
-      - build-${DRONE_BUILD_NUMBER}
-  publish-api-docker:
+    settings:
+      repo: registry.paradas.co/do-dns-updater
+      registry: registry.paradas.co
+      secrets: [ docker_username, docker_password ]
+      tags:
+        - latest
+        - build-${DRONE_BUILD_NUMBER}
+  - name: publish-docker-io
     image: plugins/docker
-    username: ${DOCKERHUB_USERNAME}
-    password: ${DOCKERHUB_PASSWORD}
-    email: ${DOCKERHUB_EMAIL}
-    repo: jparadasb/do-dns-updater
-    tags:
-      - latest
-      - build-${DRONE_BUILD_NUMBER}
+    settings:
+      username:
+        from_secret: DOCKERHUB_USERNAME
+      password: 
+        from_secret: DOCKERHUB_PASSWORD
+      email: 
+        from_secret: DOCKERHUB_EMAIL
+      repo: jparadasb/do-dns-updater
+      tags:
+        - latest
+        - build-${DRONE_BUILD_NUMBER}
