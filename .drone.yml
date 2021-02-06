@@ -18,8 +18,6 @@ steps:
         from_secret: DOCKERHUB_USERNAME
       password: 
         from_secret: DOCKERHUB_PASSWORD
-      email: 
-        from_secret: DOCKERHUB_EMAIL
       repo: jparadasb/do-dns-updater
       tags:
         - latest
