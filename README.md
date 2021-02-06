@@ -1,14 +1,27 @@
-# dns-updater-digital-ocean
+# do-dns-updater
 
-## Description
+## About this Image
 
-    This script allows to update a record using the Digital Ocean Network API.
-    The idea is to allow connect to a device at home throw internet with a dinamic IP.
+This container is useful as dynamic DNS, to keep updated the DNS records with the IP assigned by your ISP.
 
-## Installation
+Use the [Digital Ocean Network API](https://developers.digitalocean.com/documentation/v2/#domain-records)
 
-    1. Change the line User to use the right user, line 10 of dns-updater.service.
-    2. Createa file dns-upadter.env using the example file and put into the user folder.
-    3. Change the following paths EnvironmentFile and ExecStart, lines 11 and 12 of dns-updater.service.
-    4. Move dns-updater.service to `/etc/systemd/system/` or create a link  `ln -s dns-updater.service  /etc/system/system/`
-    5. Run `sudo systemctl start dns-updater.service`
+## How to use
+
+- Point your domains to [Digital Ocean](https://m.do.co/c/b6dc7cce9ea7) using the nameservers
+`n1.digitalocean.com`
+`n2.digitalocean.com`
+`n3.digitalocean.com`
+
+- Create the domain in the `Networking` menu and add a new `A Record`, take note of the ID.
+- Genetare `Personal access tokens` in `API` >  `Tokens/Keys` and store them in a safe place.
+
+- Run the container with property `EVN` vars
+
+```bash
+docker run -e 'DOMAINS_INFO=domain1,domain2,domain3' -e 'RECORDS_IDS=id1,id2,id3' -e 'DO_API_KEY=your_personal_token' -name dns-updater --restart always jparadasb/do-dns-updater:latest
+```
+
+## Disclaimer
+
+This container just allow to update one record per domain
