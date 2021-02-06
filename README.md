@@ -16,7 +16,7 @@ Use the [Digital Ocean Network API](https://developers.digitalocean.com/document
 - Create the domain in the `Networking` menu and add a new `A Record`, take note of the ID.
 - Genetare `Personal access tokens` in `API` >  `Tokens/Keys` and store them in a safe place.
 
-- Run the container with property `EVN` vars
+- Run the container with right `EVN` vars
 
 ```bash
 docker run -e 'DOMAINS_INFO=domain1,domain2,domain3' -e 'RECORDS_IDS=id1,id2,id3' -e 'DO_API_KEY=your_personal_token' -name dns-updater --restart always jparadasb/do-dns-updater:latest
