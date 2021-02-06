@@ -14,27 +14,32 @@ function getAttribute () {
   echo $1 | jq -r $2
 } 
 
-function updateDNS () {
+function updateDNS () { #$1 domain $2 record_id
   local TEMP_FILE=/tmp/current-ip
   local NEW_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+  logger "Processing domain: $1 with id: $2"
 
   # logger "External ip $NEW_IP"
 
   if test -f "$TEMP_FILE"; then
-    local CURRENT_IP=$(<"$TEMP_FILE")
+    local CURRENT_IP=$(cat "$TEMP_FILE" | grep "$1" | cut -d '|' -f 2)
   fi
 
   logger "New_IP: $NEW_IP, Stored_IP: $CURRENT_IP"
 
   if [ "$CURRENT_IP" != "$NEW_IP" ]; then
-    echo "$NEW_IP" > $TEMP_FILE
-    local RESPONSE=$(curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $DO_API_KEY" -d "{\"data\": \"$NEW_IP\" }" "https://api.digitalocean.com/v2/domains/$DOMAIN/records/$DOMAIN_ID" 2>/dev/null )
+    if [ -z "$CURRENT_IP" ]; then # if current_ip is empty, then should append new ip and domain
+      echo "${1}|${NEW_IP}" >> $TEMP_FILE
+    else
+      sed -i -e "/${1}/c${1}|${NEW_IP}" $TEMP_FILE # replace entery line with domain and new ip
+    fi
+    local RESPONSE=$(curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $DO_API_KEY" -d "{\"data\": \"$NEW_IP\" }" "https://api.digitalocean.com/v2/domains/$1/records/$2" 2>/dev/null )
     logger "$RESPONSE"
     local RESPONSE_RECORD_ID=$(getAttribute $RESPONSE '.id')
     if [ "$RESPONSE_RECORD_ID" == "not_found" ]; then
       logger $(getAttribute $RESPONSE '.message')
     else
-      logger "IP address updated successfully to $NEW_IP" "--force"
+      logger "IP address for $1 updated successfully to $NEW_IP" "--force"
       logger "RecordID: $(getAttribute $RESPONSE '.domain_record.id') IP: $(getAttribute $RESPONSE '.domain_record.data')"
     fi
   else
@@ -44,6 +49,12 @@ function updateDNS () {
 
 while :
 do
-  updateDNS
-  sleep 1
+  IFS=","
+  read -a domains <<< $DOMAINS_INFO
+  read -a records <<< $RECORDS_IDS
+  unset IFS
+  for i in "${!domains[@]}"; do
+    updateDNS ${domains[$i]} ${records[$i]}
+    sleep 1
+  done
 done

@@ -10,6 +10,5 @@
     1. Change the line User to use the right user, line 10 of dns-updater.service.
     2. Createa file dns-upadter.env using the example file and put into the user folder.
     3. Change the following paths EnvironmentFile and ExecStart, lines 11 and 12 of dns-updater.service.
-    4. Move dns-updater.service to `/etc/systemd/system/`
+    4. Move dns-updater.service to `/etc/systemd/system/` or create a link  `ln -s dns-updater.service  /etc/system/system/`
     5. Run `sudo systemctl start dns-updater.service`
-
