@@ -55,6 +55,6 @@ do
   unset IFS
   for i in "${!domains[@]}"; do
     updateDNS ${domains[$i]} ${records[$i]}
-    sleep 1
+    sleep 5
   done
 done
