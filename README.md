@@ -1,4 +1,4 @@
-# do-dns-updater (for digital ocean)
+# do-dns-updater [![Build Status](https://drone.paradas.co/api/badges/jparadasb/do-dns-updater/status.svg)](https://drone.paradas.co/jparadasb/do-dns-updater)
 
 ## About this Image
 
