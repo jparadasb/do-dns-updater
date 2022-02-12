@@ -1,4 +1,4 @@
-# do-dns-updater
+# do-dns-updater (for digital ocean)
 
 ## About this Image
 
