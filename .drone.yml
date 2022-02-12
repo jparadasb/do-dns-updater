@@ -7,7 +7,10 @@ steps:
     settings:
       repo: registry.paradas.co/do-dns-updater
       registry: registry.paradas.co
-      secrets: [ docker_username, docker_password ]
+      username:
+        from_secret: docker_username
+      password: 
+        from_secret: docker_password
       tags:
         - latest
         - build-${DRONE_BUILD_NUMBER}
