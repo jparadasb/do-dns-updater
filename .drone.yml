@@ -23,7 +23,6 @@ steps:
         from_secret: DOCKERHUB_PASSWORD
       repo: jparadasb/do-dns-updater
       tags:
-        - latest
         - build-${DRONE_BUILD_NUMBER}
       when:
         ref:
