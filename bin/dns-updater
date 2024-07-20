@@ -33,7 +33,7 @@ function updateDNS () { #$1 domain $2 record_id
     else
       sed -i -e "/${1}/c${1}|${NEW_IP}" $TEMP_FILE # replace entery line with domain and new ip
     fi
-    local RESPONSE=$(curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $DO_API_KEY" -d "{\"data\": \"$NEW_IP\" }" "https://api.digitalocean.com/v2/domains/$1/records/$2" 2>/dev/null )
+    local RESPONSE=$(curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $DO_API_KEY" -d "{\"data\": \"$NEW_IP\" }" "https://api.digitalocean.com/v1/domains/$1/records/$2" 2>/dev/null )
     logger "$RESPONSE"
     local RESPONSE_RECORD_ID=$(getAttribute $RESPONSE '.id')
     if [ "$RESPONSE_RECORD_ID" == "not_found" ]; then
