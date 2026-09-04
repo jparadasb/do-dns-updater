@@ -4,6 +4,12 @@ if [ "$1" == "--debug" ]; then
   DEBUG=true
 fi
 
+UPDATE_INTERVAL="${UPDATE_INTERVAL:-300}"
+if ! [[ "$UPDATE_INTERVAL" =~ ^[1-9][0-9]*$ ]]; then
+  echo "UPDATE_INTERVAL must be a positive integer" >&2
+  exit 1
+fi
+
 function logger () {
   if [ "$DEBUG" = true ] || [ "$2" == "--force" ]; then
     echo "$1"
@@ -55,6 +61,6 @@ do
   unset IFS
   for i in "${!domains[@]}"; do
     updateDNS ${domains[$i]} ${records[$i]}
-    sleep 5
   done
+  sleep "$UPDATE_INTERVAL"
 done

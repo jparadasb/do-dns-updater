@@ -19,8 +19,10 @@ Use the [Digital Ocean Network API](https://developers.digitalocean.com/document
 - Run the container with right `EVN` vars
 
 ```bash
-docker run -e 'DOMAINS_INFO=domain1,domain2,domain3' -e 'RECORDS_IDS=id1,id2,id3' -e 'DO_API_KEY=your_personal_token' -name dns-updater --restart always jparadasb/do-dns-updater:latest
+docker run -e 'DOMAINS_INFO=domain1,domain2,domain3' -e 'RECORDS_IDS=id1,id2,id3' -e 'DO_API_KEY=your_personal_token' -e 'UPDATE_INTERVAL=300' --name dns-updater --restart always jparadasb/do-dns-updater:latest
 ```
+
+`UPDATE_INTERVAL` controls how often the public IP is checked, in seconds. It defaults to `300`.
 
 ## Disclaimer
 
